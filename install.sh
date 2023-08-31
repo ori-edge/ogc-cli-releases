@@ -1,5 +1,6 @@
 #!/bin/sh
-VERSION=$(curl --silent "https://api.github.com/repos/ori-edge/ogc-cli-releases/releases/latest" |  jq -r .tag_name)
+#VERSION=$(curl --silent "https://api.github.com/repos/ori-edge/ogc-cli-releases/releases/latest" |  jq -r .tag_name)
+VERSION="latest"
 
 ARCH=""
 case $(uname -m) in

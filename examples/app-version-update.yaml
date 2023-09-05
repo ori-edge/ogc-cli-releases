@@ -1,0 +1,55 @@
+name: update-app
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  app-update:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install OGC cli
+        run: |
+          curl https://raw.githubusercontent.com/ori-edge/ogc-cli-releases/main/install.sh | sh
+          echo "~/.ogc/bin" >> $GITHUB_PATH
+
+      - name: Login to docker registry
+        uses: docker/login-action@v2
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USER }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+
+      - name: Build image
+        run: |
+          VERSION=$(cat version) # Get latest version from version file        
+          docker build -t "quay.io/oriedge/demo-app:$VERSION" .
+          docker push "quay.io/oriedge/demo-app:$VERSION"
+
+      - name: Update package version
+        run: |
+          # Getting resource IDs
+          PROJECT_ID=$(ogc proj ls --filter-name "demo-app" -x json | jq -rc '.[0].id')
+          PKG_ID=$(ogc pkg ls -p $PROJECT_ID -x json | jq -r '.[0].id')
+          DEPLOY_ID=$(ogc pkg get-deployment $PKG_ID -p $PROJECT_ID | jq -r '.id')
+          CONTAINER_ID=$(ogc containers list -a $APP_ID -p $PROJECT_ID -f "demo-app" -x json | jq -r '.[0].id')
+          
+          # Stop deployment
+          ogc deploy stop $DEPLOY_ID -k $PKG_ID -p $PROJECT_ID --wait
+          
+          # Update application version
+          VERSION=$(cat version) # Get latest version from version file        
+          ogc containers update $CONTAINER_ID --project-id $PROJECT_ID --image-tag "$VERSION"
+          
+          # Deploy app
+          ogc deployments create -k $PKG_ID -p $PROJECT_ID -x json
+        env:
+          OGC_USERNAME: ${{ secrets.OGC_USERNAME }}
+          OGC_PASSWORD: ${{ secrets.OGC_PASSWORD }}
+          OGC_ORG_ID: ${{ secrets.OGC_ORG_ID }}

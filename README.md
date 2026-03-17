@@ -1,6 +1,6 @@
-# ogc-cli-releases
+# raic-cli-releases
 
-This repository provides automated installation scripts for [OGC-CLI](https://github.com/ori-edge/ogc-cli).
+This repository provides automated installation scripts for [RAIC-CLI](https://github.com/ori-edge/ogc-cli).
 
 ## Release
 

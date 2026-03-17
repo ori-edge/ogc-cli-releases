@@ -26,39 +26,39 @@ case $(uname) in
 esac
 
 if [ "${VERSION}" = "latest" ]; then
-  DOWNLOAD_URL="https://github.com/ori-edge/ogc-cli-releases/releases/${VERSION}/download/ogc-${OS}-${ARCH}.${EXT}"
+  DOWNLOAD_URL="https://github.com/ori-edge/ogc-cli-releases/releases/${VERSION}/download/raic-${OS}-${ARCH}.${EXT}"
 else
-  DOWNLOAD_URL="https://github.com/ori-edge/ogc-cli-releases/releases/download/${VERSION}/ogc-${OS}-${ARCH}.${EXT}"
+  DOWNLOAD_URL="https://github.com/ori-edge/ogc-cli-releases/releases/download/${VERSION}/raic-${OS}-${ARCH}.${EXT}"
 fi
-TARBALL_DEST="ogc-${OS}-${ARCH}.${EXT}"
+TARBALL_DEST="raic-${OS}-${ARCH}.${EXT}"
 
-printf "Downloading ogc version: %s\\n" "${VERSION}"
+printf "Downloading raic version: %s\\n" "${VERSION}"
 
 if curl -s -L -o "${TARBALL_DEST}" "${DOWNLOAD_URL}"; then
-    printf "Extracting to %s\\n" "$HOME/.ogc/bin"
+    printf "Extracting to %s\\n" "$HOME/.raic/bin"
 
-    # If `~/.ogc/bin exists, delete it
-    if [ -e "${HOME}/.ogc/bin" ]; then
-        rm -rf "${HOME}/.ogc/bin"
+    # If `~/.raic/bin exists, delete it
+    if [ -e "${HOME}/.raic/bin" ]; then
+        rm -rf "${HOME}/.raic/bin"
     fi
 
-    mkdir -p "${HOME}/.ogc"
+    mkdir -p "${HOME}/.raic"
 
-    EXTRACT_DIR=$(mktemp -d ogc.XXXXXXXXXX)
+    EXTRACT_DIR=$(mktemp -d raic.XXXXXXXXXX)
     tar zxf "${TARBALL_DEST}" -C "${EXTRACT_DIR}"
 
-    cp -r "${EXTRACT_DIR}/." "${HOME}/.ogc/bin/"
+    cp -r "${EXTRACT_DIR}/." "${HOME}/.raic/bin/"
 
     rm -f "${TARBALL_DEST}"
     rm -rf "${EXTRACT_DIR}"
-    printf "Installation complete. You can now use ~/.ogc/bin/ogc to run ogc.\\n"
+    printf "Installation complete. You can now use ~/.raic/bin/raic to run raic.\\n"
 else
     >&2  printf "error: failed to download %s\\n" "${DOWNLOAD_URL}"
     exit 1
 fi
 
-# Add $HOME/.ogc/bin to the PATH
-if ! command -v ogc >/dev/null; then
+# Add $HOME/.raic/bin to the PATH
+if ! command -v raic >/dev/null; then
     SHELL_NAME=$(basename "${SHELL}")
     PROFILE_FILE=""
 
@@ -81,13 +81,13 @@ if ! command -v ogc >/dev/null; then
     fi
 
     if [ -n "${PROFILE_FILE}" ]; then
-        LINE_TO_ADD="export PATH=\$PATH:\$HOME/.ogc/bin"
-        if ! grep -q "# add ogc to PATH" "${PROFILE_FILE}"; then
-            printf "Adding \$HOME/.ogc/bin to \$PATH in %s\\n" "${PROFILE_FILE}"
-            printf "\\n# add ogc to PATH\\n%s\\n" "${LINE_TO_ADD}" >> "${PROFILE_FILE}"
+        LINE_TO_ADD="export PATH=\$PATH:\$HOME/.raic/bin"
+        if ! grep -q "# add raic to PATH" "${PROFILE_FILE}"; then
+            printf "Adding \$HOME/.raic/bin to \$PATH in %s\\n" "${PROFILE_FILE}"
+            printf "\\n# add raic to PATH\\n%s\\n" "${LINE_TO_ADD}" >> "${PROFILE_FILE}"
         fi
-        printf "Please restart your shell or add %s to your \$PATH\\n" "$HOME/.ogc/bin"
+        printf "Please restart your shell or add %s to your \$PATH\\n" "$HOME/.raic/bin"
     else
-        printf "Please add %s to your \$PATH\\n" "$HOME/.ogc/bin"
+        printf "Please add %s to your \$PATH\\n" "$HOME/.raic/bin"
     fi
 fi
